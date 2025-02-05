@@ -17,7 +17,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("NextFrontend");
+app.UseCors(options =>
+{
+    options.WithOrigins("http://localhost:3000") 
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials();
+});
 
 app.UseHttpsRedirection();
 

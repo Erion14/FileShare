@@ -32,19 +32,6 @@ namespace FileSharing.Configuration
                 )
             );
 
-            services.AddCors(options =>
-            {
-                options.AddPolicy(
-                    "NextFrontend",
-                    policy =>
-                    {
-                        policy
-                            .WithOrigins("http://localhost:3000")
-                            .AllowAnyHeader()
-                            .AllowAnyMethod();
-                    }
-                );
-            });
 
             services
                 .AddIdentity<AppUser, IdentityRole>(options =>
