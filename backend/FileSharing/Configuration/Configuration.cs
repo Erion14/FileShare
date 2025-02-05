@@ -2,6 +2,7 @@
 using FileSharing.Data;
 using FileSharing.Entities;
 using FileSharing.Service;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -48,23 +49,41 @@ namespace FileSharing.Configuration
                 .AddDefaultTokenProviders();
 
             services
-                .AddAuthentication()
+                .AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
                 .AddJwtBearer(options =>
                 {
-                    options.TokenValidationParameters = new()
+                    options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new RsaSecurityKey(GetRsaKey()),
                         ValidateAudience = false,
                         ValidateIssuer = false,
+                        ValidateLifetime = true,
+                        ClockSkew = TimeSpan.Zero
                     };
-                })
-                .AddGoogle(options =>
-                {
-                    options.ClientId = configuration["Google:ClientId"]!;
-                    options.ClientSecret = configuration["Google:ClientSecret"]!;
-                    options.CallbackPath = "/signin-google";
+                    
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnAuthenticationFailed = context =>
+                        {
+                            Console.WriteLine($"Authentication failed: {context.Exception}");
+                            return Task.CompletedTask;
+                        },
+                        OnMessageReceived = context =>
+                        {
+                            Console.WriteLine($"Token received: {context.Token}");
+                            return Task.CompletedTask;
+                        }
+                    };
                 });
+
+            services.AddAuthorization();
+
+     
 
             RSA GetRsaKey()
             {

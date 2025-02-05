@@ -81,9 +81,10 @@ body {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-/* Add this after your existing styles */
+/* Update the black-button styles */
 .black-button {
-  @apply bg-black text-white px-6 py-2 rounded-md border border-transparent transition-all duration-300;
+  @apply bg-black text-white px-6 py-2 rounded-md border border-white/20 transition-all duration-300;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
 }
 
 .black-button:hover {

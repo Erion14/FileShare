@@ -12,16 +12,18 @@ const HomePage = () => {
       <WorldMapBackground />
       
       {/* Navigation Bar */}
-      <nav className="relative z-10 fixed top-0 w-full p-4 flex justify-between items-center ">
+      <nav className="relative z-10 top-0 w-full p-4 flex justify-between items-center">
         <div className="text-white text-xl font-bold">
           FileShare
         </div>
-        <Link
-          href="/pages/signup"
-          className="black-button"
-        >
-          Sign Up
-        </Link>
+        <div className="flex items-center space-x-4">
+          <Link href="/pages/upload" className="black-button">
+            Upload Files
+          </Link>
+          <Link href="/pages/signup" className="black-button">
+            Sign Up
+          </Link>
+        </div>
       </nav>
 
       {/* Main Content */}
