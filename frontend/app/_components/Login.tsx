@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { Label } from "../../components/ui/label";
 import { Input } from "../../components/ui/input";
 import { cn } from "@/lib/utils";
@@ -13,20 +13,28 @@ export function Login() {
   const [email, setEmail] = React.useState("");
   const router = useRouter();
   const [password, setPassword] = React.useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) =>  {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setIsLoading(true);
+
     try {
       const { data } = await api.post("/api/auth/login", { email, password });
       if (data.token) {
         Cookies.set('accessToken', data.token);
-        router.push("/dashboard");
+        router.push("/pages/upload");
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        throw new Error(error.response?.data?.message || 'An error occurred during login');
+        setError(error.response?.data?.message || 'An error occurred during login');
+      } else {
+        setError('An unexpected error occurred');
       }
-      console.error("Login failed:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -40,6 +48,12 @@ export function Login() {
           Login to use the File Sharing services.
         </p>
 
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3">
+            <p className="text-red-500 text-sm">{error}</p>
+          </div>
+        )}
+
         <LabelInputContainer className="mb-4">
           <Label htmlFor="email" className="text-neutral-200 dark:text-neutral-800">
             Email Address
@@ -51,6 +65,7 @@ export function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="bg-neutral-800 text-white dark:bg-neutral-200 dark:text-black"
+            disabled={isLoading}
           />
         </LabelInputContainer>
         <LabelInputContainer className="mb-4">
@@ -64,14 +79,16 @@ export function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="bg-neutral-800 text-white dark:bg-neutral-200 dark:text-black"
+            disabled={isLoading}
           />
         </LabelInputContainer>
 
         <button
           type="submit"
-          className="w-full bg-black text-white py-2 px-4 rounded-md hover:bg-gray-900 transition-colors"
+          disabled={isLoading}
+          className="w-full bg-black text-white py-2 px-4 rounded-md hover:bg-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Login
+          {isLoading ? "Logging in..." : "Login"}
         </button>
 
         <div className="text-center mt-4">

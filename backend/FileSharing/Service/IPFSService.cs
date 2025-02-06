@@ -1,7 +1,5 @@
-﻿using System.Text.Json;
-using FileSharing.Configuration;
+﻿using FileSharing.Configuration;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Logging;
 
 namespace FileSharing.Service
 {

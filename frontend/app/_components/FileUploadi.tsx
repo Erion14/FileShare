@@ -6,18 +6,20 @@ import { api } from "@/app/utils/api";
 export function FileUploadi() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleFileUpload = async (files: File[]) => {
     try {
-      setError(null);
-      const formData = new FormData();
+      if (files.length === 0) return;
       
-      // Append each file individually
-      files.forEach((file, index) => {
-        formData.append(`file${index}`, file); // Or use 'files[]' for array format
-      });
+      setError(null);
+      setSuccessMessage(null);
+      setIsUploading(true);
+      const formData = new FormData();
+      formData.append('file', files[0]);
 
-      const { data } = await api.post("/api/files", formData, {
+      const { data } = await api.post("/api/files/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -30,9 +32,21 @@ export function FileUploadi() {
       });
 
       console.log("Upload successful:", data);
-    } catch (err) {
-      setError("File upload failed. Please try again.");
+      setSuccessMessage(`File "${files[0].name}" uploaded successfully!`);
+      setTimeout(() => {
+        setUploadProgress(0);
+        setIsUploading(false);
+      }, 1000); 
+
+    } catch (err: any) {
+      if (err.response?.data?.errors?.file) {
+        setError(err.response.data.errors.file[0]);
+      } else {
+        setError("File upload failed. Please try again.");
+      }
       console.error("Upload error:", err);
+      setIsUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -41,7 +55,7 @@ export function FileUploadi() {
       <FileUpload onChange={handleFileUpload} />
       
       {/* Progress Feedback */}
-      {uploadProgress > 0 && (
+      {isUploading && uploadProgress > 0 && (
         <div className="mt-4">
           <div className="h-2 bg-gray-200 rounded">
             <div 
@@ -49,15 +63,24 @@ export function FileUploadi() {
               style={{ width: `${uploadProgress}%` }}
             ></div>
           </div>
-          <p className="text-sm mt-2">
+          <p className="text-sm mt-2 text-gray-600 dark:text-gray-300">
             {uploadProgress === 100 ? "Processing..." : `Uploading... ${uploadProgress}%`}
           </p>
         </div>
       )}
 
+      {/* Success Message */}
+      {successMessage && (
+        <div className="mt-4 p-4 bg-green-500/10 border border-green-500/50 rounded-lg">
+          <p className="text-green-600 dark:text-green-400">{successMessage}</p>
+        </div>
+      )}
+
       {/* Error Display */}
       {error && (
-        <p className="text-red-500 mt-4 text-sm">{error}</p>
+        <div className="mt-4 p-4 bg-red-500/10 border border-red-500/50 rounded-lg">
+          <p className="text-red-500 text-sm">{error}</p>
+        </div>
       )}
     </div>
   );

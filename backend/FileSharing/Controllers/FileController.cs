@@ -1,19 +1,15 @@
 ﻿using FileSharing.Data;
 using FileSharing.Entities;
 using FileSharing.Service;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.Mapping;
-using Microsoft.Extensions.Logging;
 
 namespace FileSharing.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [Route("api/files")]
-    
     public class FileController(
         IPFSService ipfs,
         AppDbContext context,
@@ -25,22 +21,22 @@ namespace FileSharing.Controllers
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> Upload(IFormFile file)
         {
-            try 
+            try
             {
                 if (file == null || file.Length == 0)
                 {
                     return BadRequest(new { message = "No file was provided" });
                 }
-                
+
                 var allowedTypes = new[] { ".jpg", ".jpeg", ".png", ".pdf", ".doc", ".docx" };
                 var fileExt = Path.GetExtension(file.FileName).ToLowerInvariant();
-                
+
                 if (!allowedTypes.Contains(fileExt))
                 {
                     return BadRequest(new { message = "File type not allowed" });
                 }
 
-                if (file.Length > 5 * 1024 * 1024) 
+                if (file.Length > 5 * 1024 * 1024)
                 {
                     return BadRequest(new { message = "File size exceeds limit" });
                 }
@@ -76,7 +72,7 @@ namespace FileSharing.Controllers
             }
         }
 
-        [HttpGet("upload/{cid}")]
+        [HttpGet("retrieve/{cid}")]
         public async Task<IActionResult> Download(string cid)
         {
             try
@@ -90,7 +86,7 @@ namespace FileSharing.Controllers
                 var file = await context.Files.FirstOrDefaultAsync(f =>
                     f.IPFSHash == cid && f.UserId == user.Id
                 );
-                
+
                 if (file == null)
                 {
                     return NotFound(new { message = "File not found" });
@@ -98,9 +94,9 @@ namespace FileSharing.Controllers
 
                 logger.LogInformation($"Retrieving file {file.FileName} with CID {cid} from IPFS");
                 var stream = await ipfs.GetFileAsync(cid);
-                
+
                 var contentType = GetContentType(file.FileType);
-                
+
                 return File(stream, contentType, file.FileName);
             }
             catch (Exception ex)
@@ -119,8 +115,9 @@ namespace FileSharing.Controllers
                 ".jpeg" => "image/jpeg",
                 ".png" => "image/png",
                 ".doc" => "application/msword",
-                ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                _ => "application/octet-stream"
+                ".docx" =>
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                _ => "application/octet-stream",
             };
         }
 

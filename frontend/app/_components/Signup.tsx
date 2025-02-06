@@ -39,7 +39,6 @@ export function Signup() {
       } else {
         setError('An unexpected error occurred');
       }
-      console.error("Registration failed:", error);
     } finally {
       setIsLoading(false);
     }
@@ -55,6 +54,12 @@ export function Signup() {
           Sign up to start sharing files securely.
         </p>
 
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3">
+            <p className="text-red-500 text-sm">{error}</p>
+          </div>
+        )}
+
         <LabelInputContainer className="mb-4">
           <Label htmlFor="email" className="text-neutral-200 dark:text-neutral-800">
             Email Address
@@ -66,6 +71,7 @@ export function Signup() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="bg-neutral-800 text-white dark:bg-neutral-200 dark:text-black"
+            disabled={isLoading}
             required
           />
         </LabelInputContainer>
@@ -80,6 +86,7 @@ export function Signup() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="bg-neutral-800 text-white dark:bg-neutral-200 dark:text-black"
+            disabled={isLoading}
             required
           />
         </LabelInputContainer>
@@ -94,15 +101,10 @@ export function Signup() {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             className="bg-neutral-800 text-white dark:bg-neutral-200 dark:text-black"
+            disabled={isLoading}
             required
           />
         </LabelInputContainer>
-
-        {error && (
-          <div className="text-red-500 text-sm text-center">
-            {error}
-          </div>
-        )}
 
         <button
           type="submit"

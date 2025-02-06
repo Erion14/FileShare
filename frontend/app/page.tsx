@@ -1,11 +1,22 @@
 'use client';
-import React from "react";
+import React, { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { WorldMapBackground } from "./_components/WorldMapBackground";
+import { UserMenu } from "./_components/UserMenu";
+import Cookies from 'js-cookie';
 
 const HomePage = () => {
   const router = useRouter();
+
+  const handleGetStarted = useCallback(() => {
+    const token = Cookies.get('accessToken');
+    if (token) {
+      router.push('/pages/upload');
+    } else {
+      router.push('/pages/signup');
+    }
+  }, [router]);
 
   return (
     <div className="min-h-screen bg-[#121212] relative">
@@ -17,12 +28,7 @@ const HomePage = () => {
           FileShare
         </div>
         <div className="flex items-center space-x-4">
-          <Link href="/pages/upload" className="black-button">
-            Upload Files
-          </Link>
-          <Link href="/pages/signup" className="black-button">
-            Sign Up
-          </Link>
+          <UserMenu />
         </div>
       </nav>
 
@@ -39,12 +45,12 @@ const HomePage = () => {
         </p>
 
         <div className="space-y-4 mb-4">
-          <Link
-            href="/pages/signup"
+          <button
+            onClick={handleGetStarted}
             className="black-button"
           >
             Get Started
-          </Link>
+          </button>
         </div>
 
         {/* Features Section */}
