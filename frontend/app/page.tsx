@@ -1,5 +1,5 @@
 'use client';
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { WorldMapBackground } from "./_components/WorldMapBackground";
@@ -9,14 +9,15 @@ import Cookies from 'js-cookie';
 const HomePage = () => {
   const router = useRouter();
 
-  const handleGetStarted = useCallback(() => {
-    const token = Cookies.get('accessToken');
-    if (token) {
-      router.push('/pages/upload');
-    } else {
-      router.push('/pages/signup');
-    }
+  useEffect(() => {
+    router.prefetch('/pages/signup');
+    router.prefetch('/pages/upload');
   }, [router]);
+
+  const handleGetStarted = () => {
+    const token = Cookies.get('accessToken');
+    router.replace(token ? '/pages/upload' : '/pages/signup');
+  };
 
   return (
     <div className="min-h-screen bg-[#121212] relative">
