@@ -47,7 +47,9 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseHttpsRedirection();
 }
+
 
 app.UseCors(options =>
 {
@@ -57,7 +59,6 @@ app.UseCors(options =>
         .AllowCredentials();
 });
 
-app.UseHttpsRedirection();
 
 app.UseAuthentication();
 
