@@ -19,7 +19,7 @@ namespace FileSharing.Controllers
     {
         [HttpPost("upload")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> Upload(IFormFile file)
+        public async Task<IActionResult> Upload(IFormFile? file)
         {
             try
             {
@@ -138,6 +138,30 @@ namespace FileSharing.Controllers
             context.Files.Remove(file);
             await context.SaveChangesAsync();
             return Ok(new { message = "File deleted successfully" });
+        }
+
+        [HttpGet("list")]
+        public async Task<IActionResult> List()
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized(new { message = "Unauthorized access" });
+            }
+
+            var files = await context.Files
+                .Where(f => f.UserId == user.Id)
+                .Select(f => new
+                {
+                    f.FileId,
+                    f.FileName,
+                    f.FileSize,
+                    f.FileType,
+                    f.CreateTime,
+                    f.ExpirationDuration,
+                })
+                .ToListAsync();
+            return Ok(files);
         }
     }
 }

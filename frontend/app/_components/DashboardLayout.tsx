@@ -1,6 +1,6 @@
 'use client';
-import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
-import { IconHome, IconUpload, IconLogout } from "@tabler/icons-react";
+import { Sidebar, SidebarBody, SidebarLink, useSidebar } from "@/components/ui/sidebar";
+import { IconHome, IconUpload, IconLogout, IconLogin } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from 'js-cookie';
@@ -11,9 +11,33 @@ interface DecodedToken {
   email: string;
 }
 
+function LogoutButton() {
+  const { open, animate } = useSidebar();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    Cookies.remove('accessToken');
+    router.refresh();
+    router.push('/');
+  };
+
+  return (
+    <motion.div
+      animate={{
+        display: animate ? (open ? "flex" : "none") : "flex",
+        opacity: animate ? (open ? 1 : 0) : 1,
+      }}
+      className="flex items-center gap-2 group/sidebar py-2 text-red-500 hover:text-red-400 cursor-pointer"
+      onClick={handleLogout}
+    >
+      <IconLogout className="h-4 w-4 text-neutral-500" />
+      <span className="text-sm group-hover/sidebar:translate-x-1 transition duration-150">Logout</span>
+    </motion.div>
+  );
+}
+
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [userEmail, setUserEmail] = useState<string | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
     const token = Cookies.get('accessToken');
@@ -26,12 +50,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       }
     }
   }, []);
-
-  const handleLogout = (e: React.MouseEvent) => {
-    e.preventDefault();
-    Cookies.remove('accessToken');
-    router.push('/');
-  };
 
   return (
     <div className="flex h-screen bg-[#121212]">
@@ -56,30 +74,30 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 />
               </div>
               
-              {userEmail && (
-                <div className="mt-auto mb-4 flex flex-col gap-2">
+              <div className="mt-auto mb-4 flex flex-col gap-2">
+                {userEmail ? (
+                  <>
+                    <SidebarLink
+                      link={{
+                        label: userEmail,
+                        href: "#",
+                        icon: <div className="h-4 w-4 rounded-full bg-neutral-500" />,
+                      }}
+                      className="text-neutral-400"
+                    />
+                    <LogoutButton />
+                  </>
+                ) : (
                   <SidebarLink
                     link={{
-                      label: userEmail,
-                      href: "#",
-                      icon: <div className="h-4 w-4 rounded-full bg-neutral-500" />,
+                      label: "Login",
+                      href: "/pages/logini",
+                      icon: <IconLogin className="h-4 w-4 text-neutral-500" />,
                     }}
-                    className="text-neutral-400"
+                    className="text-blue-500 hover:text-blue-400"
                   />
-                  <SidebarLink
-                    link={{
-                      label: "Logout",
-                      href: "#",
-                      icon: <IconLogout className="h-4 w-4 text-neutral-500" />,
-                    }}
-                    className="text-red-500 hover:text-red-400"
-                    props={{ 
-                      onClick: handleLogout,
-                      href: "#"
-                    }}
-                  />
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </SidebarBody>
         </Sidebar>
@@ -89,4 +107,5 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       </main>
     </div>
   );
-} 
+}
+
