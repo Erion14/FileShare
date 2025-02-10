@@ -149,6 +149,7 @@ namespace FileSharing.Controllers
                 return Unauthorized(new { message = "Unauthorized access" });
             }
 
+
             var files = await context.Files
                 .Where(f => f.UserId == user.Id)
                 .Select(f => new
