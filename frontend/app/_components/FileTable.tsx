@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { IconDownload } from "@tabler/icons-react";
+import { IconDownload, IconRefresh, IconTrash } from "@tabler/icons-react";
 
 interface FileData {
   fileId: string;
@@ -21,20 +21,38 @@ interface FileData {
   cid: string;
 }
 
-export function FileTable() {
+interface FileTableProps {
+  refreshTrigger?: number;
+}
+
+export function FileTable({ refreshTrigger = 0 }: FileTableProps) {
   const [files, setFiles] = useState<FileData[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const fetchFiles = async () => {
+    try {
+      setIsRefreshing(true);
+      const { data } = await api.get<FileData[]>("/api/files/list");
+      setFiles(data);
+    } catch (error) {
+      console.error("Error fetching files:", error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchFiles = async () => {
-      try {
-        const { data } = await api.get<FileData[]>("/api/files/list");
-        setFiles(data);
-      } catch (error) {
-        console.error("Error fetching files:", error);
-      }
-    };
     fetchFiles();
-  }, []);
+  }, [refreshTrigger]);
+
+  const handleDelete = async (cid: string) => {
+    try {
+      await api.delete(`/api/files/delete/${cid}`);
+      fetchFiles();
+    } catch (error) {
+      console.error("Delete failed:", error);
+    }
+  };
 
   const handleDownload = async (cid: string, fileName: string) => {
     try {
@@ -57,6 +75,17 @@ export function FileTable() {
 
   return (
     <div className="rounded-md border bg-white text-black shadow-sm">
+      <div className="flex justify-end p-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={fetchFiles}
+          disabled={isRefreshing}
+        >
+          <IconRefresh className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+          Refresh
+        </Button>
+      </div>
       <Table>
         <TableHeader>
           <TableRow>
@@ -72,7 +101,7 @@ export function FileTable() {
               <TableCell className="font-medium">{file.fileName}</TableCell>
               <TableCell>{file.fileType}</TableCell>
               <TableCell>{(file.fileSize / 1024).toFixed(2)} KB</TableCell>
-              <TableCell className="text-right">
+              <TableCell className="text-right space-x-2">
                 <Button
                   variant="outline"
                   size="sm"
@@ -80,6 +109,15 @@ export function FileTable() {
                 >
                   <IconDownload className="mr-2 h-4 w-4" />
                   Download
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDelete(file.cid)}
+                  className="bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700"
+                >
+                  <IconTrash className="mr-2 h-4 w-4" />
+                  Delete
                 </Button>
               </TableCell>
             </TableRow>

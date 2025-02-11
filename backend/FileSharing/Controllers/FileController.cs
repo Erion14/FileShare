@@ -122,7 +122,7 @@ namespace FileSharing.Controllers
             };
         }
 
-        [HttpDelete("{cid}")]
+        [HttpDelete("delete/{cid}")]
         public async Task<IActionResult> Delete(string cid)
         {
             var user = await userManager.GetUserAsync(User);

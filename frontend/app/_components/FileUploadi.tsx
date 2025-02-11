@@ -54,7 +54,6 @@ export function FileUploadi() {
     <div className="w-full max-w-4xl mx-auto min-h-96 border border-dashed bg-white dark:bg-black border-neutral-200 dark:border-neutral-800 rounded-lg p-4">
       <FileUpload onChange={handleFileUpload} />
       
-      {/* Progress Feedback */}
       {isUploading && uploadProgress > 0 && (
         <div className="mt-4">
           <div className="h-2 bg-gray-200 rounded">
@@ -69,14 +68,12 @@ export function FileUploadi() {
         </div>
       )}
 
-      {/* Success Message */}
       {successMessage && (
         <div className="mt-4 p-4 bg-green-500/10 border border-green-500/50 rounded-lg">
           <p className="text-green-600 dark:text-green-400">{successMessage}</p>
         </div>
       )}
 
-      {/* Error Display */}
       {error && (
         <div className="mt-4 p-4 bg-red-500/10 border border-red-500/50 rounded-lg">
           <p className="text-red-500 text-sm">{error}</p>
