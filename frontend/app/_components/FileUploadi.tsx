@@ -31,7 +31,7 @@ export function FileUploadi() {
         }
       });
 
-      console.log("Upload successful:", data);
+      console.log("Upload response data:", data);
       setSuccessMessage(`File "${files[0].name}" uploaded successfully!`);
       setTimeout(() => {
         setUploadProgress(0);

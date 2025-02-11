@@ -13,6 +13,7 @@ export const api = axios.create({
         'Content-Type': 'application/json',
     },
     withCredentials: true,
+    responseType: 'json'
 });
 
 const isTokenExpired = (token: string) => {
@@ -38,9 +39,10 @@ api.interceptors.request.use(config => {
             return Promise.reject('Token expired');
         }
         
-        const isAuthEndpoint = config.url?.includes('/api/auth/');
-        if (!isAuthEndpoint) {
-            config.headers.Authorization = `Bearer ${token}`;
+        config.headers.Authorization = `Bearer ${token}`;
+        
+        if (config.url?.includes('/api/files/retrieve/')) {
+            config.responseType = 'blob';
         }
     }
     return config;

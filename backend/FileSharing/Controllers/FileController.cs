@@ -1,13 +1,14 @@
 ﻿using FileSharing.Data;
 using FileSharing.Entities;
 using FileSharing.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace FileSharing.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     [Route("api/files")]
     public class FileController(
@@ -160,6 +161,7 @@ namespace FileSharing.Controllers
                     f.FileType,
                     f.CreateTime,
                     f.ExpirationDuration,
+                    CID = f.IPFSHash
                 })
                 .ToListAsync();
             return Ok(files);
