@@ -19,6 +19,7 @@ function LogoutButton() {
     Cookies.remove('accessToken');
     router.refresh();
     router.push('/');
+    window.location.reload();
   };
 
   return (
