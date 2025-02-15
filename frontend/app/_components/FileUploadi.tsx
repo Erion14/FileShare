@@ -12,12 +12,18 @@ export function FileUploadi() {
   const handleFileUpload = async (files: File[]) => {
     try {
       if (files.length === 0) return;
-      
+
+      const file = files[0];
+      if (file.size > 5 * 1024 * 1024) {
+        setError("File size exceeds 5MB limit. Please choose a smaller file.");
+        return;
+      }
+
       setError(null);
       setSuccessMessage(null);
       setIsUploading(true);
       const formData = new FormData();
-      formData.append('file', files[0]);
+      formData.append('file', file);
 
       const { data } = await api.post("/api/files/upload", formData, {
         headers: {
@@ -32,11 +38,11 @@ export function FileUploadi() {
       });
 
       console.log("Upload response data:", data);
-      setSuccessMessage(`File "${files[0].name}" uploaded successfully!`);
+      setSuccessMessage(`File "${file.name}" uploaded successfully!`);
       setTimeout(() => {
         setUploadProgress(0);
         setIsUploading(false);
-      }, 1000); 
+      }, 1000);
 
     } catch (err: any) {
       if (err.response?.data?.errors?.file) {
@@ -69,8 +75,8 @@ export function FileUploadi() {
       )}
 
       {successMessage && (
-        <div className="mt-4 p-4 bg-green-500/10 border border-green-500/50 rounded-lg">
-          <p className="text-green-600 dark:text-green-400">{successMessage}</p>
+        <div className="mt-4 p-4 bg-white border border-gray-200 rounded-lg font-sans">
+          <p className="text-base text-gray-800">{successMessage}</p>
         </div>
       )}
 
